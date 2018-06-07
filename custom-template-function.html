@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>custom template</title>
+</head>
+<body>
+
+
+
+
+
+
+<script type="text/template" >
+<!-- Create your own `template` function:
+
+ • the `template` function should accept
+    1. a string of the template to parse
+    2. an `options` object for custom delimiters
+        - an `open` property for the open delimiter
+        - a `close` property for the close delimiter
+ • the default delimiters the `template` function should use are:
+    1. `*(` for the opening delimiter
+    2. `)*` for the closing delimiter
+ • the `template` function should return a function
+ • the returned function should accept:
+    1. one argument for each placeholder in the original string
+    2. a number - this is how many times the string should be logged to the console
+
+ EXAMPLE:
+	 in the example below `*(` is my default opening delimiter and `)*` is the default closing delimiter
+	 var string = "Hi, my name is Richard. And I *( emotion )* this *( thing )*!";
+	 var logResult = template( string );
+	 logResult( 'love', 'ice cream', 2 );  logs the message "Hi, my name is Richard. And I love this ice cream!", twice
+
+
+ var string = "Is <<! thing !>> healthy to <<! action !>>?";
+ var logResult = template( string, {open: '<<!', close: '!>>'} );
+ logResult( 'ice cream', 'consume', 7 );  logs the message "Is ice cream healthy to consume?", seven times
+
+ Now it's your turn! -->
+</script>
+<script>
+	
+	function template(string, delimiters) {
+		let re = new RegExp(`${delimiters.open}(.*?)${delimiters.close}`, 'g');
+
+		return new Function('filler', 'n', `{
+
+			let result = string;
+				
+			let keys = Object.keys(filler); //1. get the object keys 
+
+			let matches = string.match(${re}); //2. get the matches
+			
+			keys.forEach(function(key, index){ //for each key find the corresponding match and replace
+				
+				let i = matches.indexOf('${delimiters.open} ' + key + ' ${delimiters.close}'); //find the index of the key in the matches array
+				
+				if (i >= 0) {
+					result = result.replace(matches[i], filler[key]);
+					console.log(result);
+				};
+
+			});
+
+			while(n--){console.log(result);}		
+
+		}`);
+	}
+
+	let delimiters = {
+		open: "<<!",
+		close: "!>>"
+	}
+ 	let string = "Is <<! thing !>> healthy to <<! action !>>?";
+ 	
+ 	let logResult = template( string, delimiters);
+ 	
+ 	let filler = {
+ 		thing : 'ice cream', 
+ 		action: 'consume'
+ 	}
+
+ 	logResult( filler, 7 ); 
+
+
+</script>
+	
+</body>
+</html>
