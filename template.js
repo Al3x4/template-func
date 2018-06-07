@@ -1,35 +1,34 @@
-function template(str, delims = {}) {
-  // Fill this in
-  	if (Object.keys(delims).length === 0) {
-  		delims = { 
-  			open : '*(', 
-  			close : ')*' 
-  		};
-  	};
+function template(str, { open = '*(', close = ')*'} = {}) {
 
-	let re = new RegExp(`${delims.open}(.*?)${delims.close}`, 'g');
+	//escape function via MDN
+	const escapeRegEx = string => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-	return function (filler, n) {
-				
-		let keys = Object.keys(filler); //1. get the object keys 
+	//let re = new RegExp('(' + escapeRegEx(open) + ')(.*?)(' + escapeRegEx(close) + ')', 'g');
+	let re = new RegExp(`${escapeRegEx(open)}(.*?)${escapeRegEx(close)}`, 'g');
 
-		let matches = str.match(re); //2. get the matches
+	return function (...params) {
+
+		let str2 = str;
+
+		n = params[params.length-1];
+
+		let matches = str2.match(re); //2. get the matches
 
 		if (matches) { 
 			matches.forEach(function(match, index){ //for each match find the corresponding key and replace
 				
-				let i = keys.indexOf(match.substr(0, match.length - delims.close.length).substr(delims.open.length).trim()); // in the keys array, find the index of the current match
+				str2 = str2.replace(match, params[index]);
 				
 
-				if (i >= 0) {
-					str = str.replace(match, filler[keys[i]]);
-				};
 			});
 		}
 
-		while(n--){console.log(str)};	 // remember console.log
+		for (let i = 0; i < n; i++){
+			console.log(str2)
+		}
+		// remember console.log
 
-	    return str; // template renderer usually returns a str
+	    return str2; // template renderer usually returns a str
 
 	}
  };
@@ -37,17 +36,16 @@ function template(str, delims = {}) {
 
 
 
-	let delimiters = {
-		open: "<<!",
-		close: "!>>"
-	}
- 	let str = "Is <<! thing !>> healthy to <<! action !>>?";
- 	
- 	let logResult = template( str, delimiters);
- 	
- 	let filler = {
- 		thing : 'ice cream', 
- 		action: 'consume'
- 	}
+	// let delimiters = {
+	// 	open: "<<!",
+	// 	close: "!>>"
+	// }
 
- 	logResult( filler, 7 ); 
+
+
+var string = "Is <<! thing !>> healthy to <<! action !>>?";
+var logResult = template( string, {open: '<<!', close: '!>>'} );
+logResult( 'ice cream', 'consume', 7 ); // logs the message "Is ice cream healthy to consume?", seven times
+
+ var t = template('Hello, world!');
+t(2);
